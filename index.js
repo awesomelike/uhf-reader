@@ -1,6 +1,22 @@
 const net = require('net');
 const app = require('express')();
-const dummy = require('./dummy.json'); 
+const dummy = require('./data/catalog.json'); 
+const notifiy = require('./util/notify');
+
+const SET = new Set();
+
+const handleData = (data) => {
+  let buffer = Buffer.from(data, "ascii");
+  const hash = buffer.toString('hex', 0, buffer.length);
+  const book = dummy.find((object) => object.rfid === hash);
+  if (book) {
+    if (!SET.has(hash)) {
+      SET.add(hash); 
+      if (book.isBorrowed === false) notifiy(book);
+      else SET.delete(hash); 
+    }
+  }
+}
 
 app.listen(3000, () => {
   console.log('Server started on 3000');
@@ -17,12 +33,7 @@ app.listen(3000, () => {
     client.write(bytes);
     
     client.on('data', (data) => {
-      var buffer = Buffer.from(data, "ascii");
-      const hash = buffer.toString('hex', 0, buffer.length);
-      const book = dummy.find((object) => object.rfid === hash);
-      console.log(book ? book.name : '');      
-      console.log(hash);
-      console.log(buffer);
+      handleData(data);
     });
     
     client.on('close', () => {

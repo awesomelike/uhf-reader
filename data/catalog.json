@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Tabiatshunoslik",
+    "rfid": "11006e0062007a440c4b50316b1a2b40455f",
+    "isBorrowed": true
+  },
+  {
+    "name": "Texnologiya",
+    "rfid": "11006e0062007a440c4c3c316b1a2e726c4c",
+    "isBorrowed": false
+  },
+  {
+    "name": "Русский язык",
+    "rfid": "11006e0062007a440c0353716b1a1b4f1c43",
+    "isBorrowed": false
+  }
+]
