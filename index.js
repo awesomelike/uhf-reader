@@ -3,6 +3,8 @@ const app = require('express')();
 const dummy = require('./data/catalog.json'); 
 const notifiy = require('./util/notify');
 
+require('dotenv').config();
+
 const SET = new Set();
 
 const handleData = (data) => {
@@ -18,13 +20,15 @@ const handleData = (data) => {
   }
 }
 
-app.listen(3000, () => {
-  console.log('Server started on 3000');
+const port = process.env.PORT || 3001;
+
+app.listen(port, () => {
+  console.log(`Server started on ${port}`);
   
   const client = new net.Socket();
   client.setEncoding('ascii');
   
-  client.connect(6000, '192.168.1.190', () => {});
+  client.connect(process.env.READER_PORT, process.env.READER_IP, () => {});
   
   client.on('connect', (data) => {
     console.log('UHF Reader connected');
