@@ -2,7 +2,8 @@ const net = require('net');
 const app = require('express')();
 const dummy = require('./data/catalog.json'); 
 const notifiy = require('./util/notify');
-
+const sendLog = require('./util/api');
+const sanitizeSet = require('./util/sanitize');
 require('dotenv').config();
 
 const SET = new Set();
@@ -14,8 +15,8 @@ const handleData = (data) => {
   if (book) {
     if (!SET.has(hash)) {
       SET.add(hash); 
+      sendLog(book);
       if (book.isBorrowed === false) notifiy(book);
-      else SET.delete(hash); 
     }
   }
 }
@@ -24,7 +25,6 @@ const port = process.env.PORT || 3001;
 
 app.listen(port, () => {
   console.log(`Server started on ${port}`);
-  
   const client = new net.Socket();
   client.setEncoding('ascii');
   
@@ -36,6 +36,9 @@ app.listen(port, () => {
     let bytes = Buffer.from([0x04, 0xff, 0x21, 0x19, 0x95], "ascii");
     client.write(bytes);
     
+    // We periodically (each 30s) clear the set
+    sanitizeSet(SET);
+
     client.on('data', (data) => {
       handleData(data);
     });
