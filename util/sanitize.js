@@ -1,5 +1,5 @@
 require('dotenv').config();
-const intervalInSeconds = process.env.SANITIZE_INTERVAL;
+const intervalInSeconds = parseInt(process.env.SANITIZE_INTERVAL, 10);
 
 const sanitizeSet = (set) => {
   setTimeout(() => {

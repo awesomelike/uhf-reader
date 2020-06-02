@@ -14,4 +14,4 @@ const sendLog = async ({ name, isBorrowed }) => {
     .catch((error) => console.error(error));
 };
 
-module.exports = sendLog;
+module.exports = { sendLog };
