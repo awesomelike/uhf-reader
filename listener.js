@@ -34,18 +34,23 @@ server.listen(port, () => {
     io.on('connection', (socket) => {
       console.log('Client connected!');
       socket.on('bookId', (bookId) => {
+        console.log(`Client sent bookId=${bookId}`)
         book.bookId = bookId;
-        
         client.on('data', (data) => {
+          
           let buffer = Buffer.from(data, "ascii");
           const hash = buffer.toString('hex', 0, buffer.length);
+	  
           if (!SET.has(hash)) {
-            SET.add(hash); 
+            SET.add(hash);
+	          console.log('hash: ', hash); 
             socket.emit('bookItem', { bookId, rfidTag: hash });
           }
-          // client.removeListener('data');
         });
       });
+    });
+    client.on('error', (error) => {
+      console.log('UHF Reader error!', error);
     });
     client.on('close', (error) => {
       console.log(client.destroyed);

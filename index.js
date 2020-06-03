@@ -14,8 +14,9 @@ const handleData = (data) => {
   const book = dummy.find((object) => object.rfid === hash);
   if (book) {
     if (!SET.has(hash)) {
+      console.log(hash);
       SET.add(hash); 
-      sendLog(book);
+      // sendLog(book);
       if (book.isBorrowed === false) notifiy(book);
     }
   }
