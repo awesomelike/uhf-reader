@@ -10,7 +10,6 @@ const port = process.env.PORT || 3001;
 const server = http.createServer(app);
 const io = socketIO(server);
 
-const SET = new Set();
 const book = {};
 
 require('dotenv').config();
@@ -20,19 +19,21 @@ server.listen(port, () => {
   const client = new net.Socket();
   
   client.setEncoding('ascii');
-
+  
   client.connect(process.env.READER_PORT, process.env.READER_IP, () => {});
   
-  sanitizeSet(SET);
-
+  // sanitizeSet(SET);
+  
   client.on('connect', (data) => {
     console.log('UHF Reader connected');
     
     let bytes = Buffer.from([0x04, 0xff, 0x21, 0x19, 0x95], "ascii");
     client.write(bytes);
-
+    
     io.on('connection', (socket) => {
       console.log('Client connected!');
+      const SET = new Set();
+
       socket.on('bookId', (bookId) => {
         console.log(`Client sent bookId=${bookId}`)
         book.bookId = bookId;
@@ -41,14 +42,21 @@ server.listen(port, () => {
           let buffer = Buffer.from(data, "ascii");
           const hash = buffer.toString('hex', 0, buffer.length);
 	  
-          if (!SET.has(hash)) {
+          if (!(SET.has(hash))) {
             SET.add(hash);
 	          console.log('hash: ', hash); 
             socket.emit('bookItem', { bookId, rfidTag: hash });
           }
         });
       });
+      
+      socket.on('disconnect', () => {
+        console.log('Client disconnected');
+        client.removeAllListeners();
+        SET.clear();  
+      });
     });
+    
     client.on('error', (error) => {
       console.log('UHF Reader error!', error);
     });
