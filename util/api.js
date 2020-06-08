@@ -14,4 +14,12 @@ const sendLog = async ({ name, isBorrowed }) => {
     .catch((error) => console.error(error));
 };
 
-module.exports = { sendLog };
+const getByRfidTag = (rfidTag) => {
+  return new Promise((resolve, reject) => {
+    axios.get(`${apiUrl}/bookItems?rfidTag=${rfidTag}`)
+    .then(({ data }) => resolve(data))
+    .catch((error) => reject(error));
+  })
+};
+
+module.exports = { sendLog, getByRfidTag };
