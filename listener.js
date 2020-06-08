@@ -25,7 +25,8 @@ server.listen(port, () => {
   
   client.setEncoding('ascii');
   
-  client.connect(process.env.READER_PORT, process.env.READER_IP, () => {});
+  client.connect(process.env.READER_PORT, process.env.READER_IP, () => {})
+    .on('error', (error) => console.log(error));
   
   client.on('connect', (data) => {
     console.log('UHF Reader connected');
@@ -56,11 +57,12 @@ server.listen(port, () => {
             socket.emit('bookItem', { bookId, rfidTag: hash });
           }
           
-        });
+        })
+          .on('error', (err) => console.log(err));
       });
       
       socket.on('rfidTag', () => {
-        client.on('data', (data) => {
+        client.on('data', async (data) => {
           const hash = calculateHashFromBuffer(data);
           const bookItem = await getByRfidTag(hash);
           socket.emit('bookItemDetails', bookItem);
@@ -75,7 +77,7 @@ server.listen(port, () => {
       socket.on('disconnect', () => {
         console.log('Client disconnected');
         client.removeAllListeners();
-        SET.clear();  
+        SET.clear();
       });
 
       socket.on('error', (error) => {
