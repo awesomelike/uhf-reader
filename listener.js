@@ -62,10 +62,15 @@ server.listen(port, () => {
       });
       
       socket.on('rfidTag', () => {
+
         client.on('data', async (data) => {
           const hash = calculateHashFromBuffer(data);
-          const bookItem = await getByRfidTag(hash);
-          socket.emit('bookItemDetails', bookItem);
+          if (!(SET.has(hash))) {
+            SET.add(hash);
+	          console.log('hash: ', hash); 
+            const [bookItem] = await getByRfidTag(hash);
+            if (bookItem) socket.emit('bookItemDetails', bookItem);
+          }
         });
       });
 
@@ -73,10 +78,11 @@ server.listen(port, () => {
         console.log('Delete request received, hash:', data.rfidTag);
         SET.delete(data.rfidTag);
       });
-
+      
       socket.on('disconnect', () => {
         console.log('Client disconnected');
         client.removeAllListeners();
+        socket.removeAllListeners();
         SET.clear();
       });
 
