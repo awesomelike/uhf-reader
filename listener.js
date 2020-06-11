@@ -18,7 +18,6 @@ const calculateHashFromBuffer = (data) => {
   let buffer = Buffer.from(data, "ascii");
   return buffer.toString('hex', 0, buffer.length);
 }
-// const token = {};
 
 server.listen(port, async () => {
   try {
@@ -34,6 +33,7 @@ server.listen(port, async () => {
 
     console.log('Logged in successfully!');
     console.log(`Listener service started on ${port}`);
+    
     const client = new net.Socket();
     
     client.setEncoding('ascii');
@@ -76,6 +76,12 @@ server.listen(port, async () => {
         
         socket.on('rfidTag', () => {
           console.log('RFID Lookup request received');
+          
+          notifier.notify({
+            title: 'RFID lookup request received!',
+            message: `RFID lookup request received`,
+          });
+          
           client.on('data', async (data) => {
             const hash = calculateHashFromBuffer(data);
             if (!(SET.has(hash))) {
