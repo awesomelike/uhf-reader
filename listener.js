@@ -29,8 +29,7 @@ server.listen(port, async () => {
     if (response.status === 401 || response.status === 404) {
       return console.log(response.data);
     }
-    // token.token = response.data.token;
-    // console.log(token.token);
+
     axios.defaults.headers.post['Authorization'] = `Bearer ${response.data.token}`;
 
     console.log('Logged in successfully!');
