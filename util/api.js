@@ -14,12 +14,15 @@ const sendLog = async ({ name, isBorrowed }) => {
     .catch((error) => console.error(error));
 };
 
-const getByRfidTag = (rfidTag) => {
+const getByRfidTag = (rfidTag, { token }) => {
   return new Promise((resolve, reject) => {
-    axios.get(`${apiUrl}/bookItems?rfidTag=${rfidTag}`)
+    axios.get(`${apiUrl}/bookItems?rfidTag=${rfidTag}`, { headers: {
+      Authorization: 'Bearer ' + token
+    } 
+  })
     .then(({ data }) => resolve(data))
     .catch((error) => reject(error));
   })
 };
 
-module.exports = { sendLog, getByRfidTag };
+module.exports = { sendLog, getByRfidTag, apiUrl };
