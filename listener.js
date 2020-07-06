@@ -6,6 +6,7 @@ const notifier = require('node-notifier');
 const { getByRfidTag, apiUrl } = require('./util/api');
 const axios = require('axios');
 const port = process.env.PORT || 3001;
+const getTags = require('./util/getTags');
 
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -44,9 +45,20 @@ server.listen(port, async () => {
     client.on('connect', (data) => {
       console.log('UHF Reader connected');
       
-      let bytes = Buffer.from([0x04, 0xff, 0x21, 0x19, 0x95], "ascii");
+      // Set to Answer mode
+			client.write(Buffer.from([0x0a, 0x00, 0x35, 0x01, 0x02, 0x01, 0x00, 0x01, 0x00, 0x01, 0x9b], 'hex'));
+			
+			// Send inventory command
+      let bytes = Buffer.from([0x04, 0x00, 0x01, 0xdb, 0x4b], 'hex');
       client.write(bytes);
-      
+      // setInterval(() => {
+			// 	let bytes = Buffer.from([0x04, 0x00, 0x01, 0xdb, 0x4b], 'hex');
+			// 	client.write(bytes);
+			// }, 200);
+
+      // let bytes = Buffer.from([0x04, 0x00, 0x01, 0xdb, 0x4b], 'hex');
+      // client.write(bytes);
+
       io.on('connection', (socket) => {
         console.log('Client connected!');
         const SET = new Set();

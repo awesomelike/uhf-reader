@@ -17,5 +17,5 @@ const CRC16 = (pucY) => {
   buf = Buffer.from([buf[1], buf[0]], 'hex');
   return buf; 
 };
-console.log(CRC16([0x04, 0xff, 0x01]));
+console.log(CRC16([0x04, 0x00, 0x0f]));
 module.exports = { CRC16 }
