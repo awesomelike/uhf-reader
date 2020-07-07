@@ -25,4 +25,4 @@ const getByRfidTag = (rfidTag, { token }) => {
   })
 };
 
-module.exports = { sendLog, getByRfidTag, apiUrl };
+module.exports = { apiUrl, sendLog, getByRfidTag };

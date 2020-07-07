@@ -31,7 +31,6 @@ server.listen(port, async () => {
 				client.write(INVENTORY);
 			}, 100);
 			
-      console.log('Client connected!');
 			const SET = new Set();
 
 			client
