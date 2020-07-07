@@ -52,14 +52,20 @@ server.listen(port, async () => {
         
         const SET = new Set();
 
-        // Send inventory command
-        const interval = setInterval(() => {
-          reader.write(INVENTORY);
-        }, 100);
-
+        // // Send inventory command
+        // const interval = setInterval(() => {
+				// 	console.log('Sending INVENTORY...');
+        //   reader.write(INVENTORY);
+        // }, 100);
+				let interval;
 				socket.on('bookId', (bookId) => {
 					console.log(`Client sent bookId=${bookId}`);
-
+					
+					// Send inventory command
+					interval = setInterval(() => {
+						reader.write(INVENTORY);
+					}, 100);
+					
 					notifier.notify({
 						title: 'The reader is ready to listen',
 						message: `Received book id: ${bookId}`,
@@ -83,6 +89,11 @@ server.listen(port, async () => {
 				socket.on('rfidTag', () => {
           const message = 'RFID Lookup request received';
 					console.log(message);
+
+					// Send inventory command
+					interval = setInterval(() => {
+						reader.write(INVENTORY);
+					}, 100);
 
 					notifier.notify({
 						title: message,
@@ -111,13 +122,21 @@ server.listen(port, async () => {
 				});
 
         socket.on('inventory', () => {
-          const message = 'Inventory has started!';
-          console.log(message);
-          notifier.notify({
+					const message = 'Inventory has started!';
+					
+					// Send inventory command
+					interval = setInterval(() => {
+						reader.write(INVENTORY);
+					}, 100);
+					
+					console.log(message);
+					
+					notifier.notify({
 						title: message,
 						message,
           });
-          reader.on('data', (data) => {
+					
+					reader.on('data', (data) => {
             const tags = getTags(data);
             if (Array.isArray(tags)) {
               tags.forEach((tag) => {
@@ -132,7 +151,7 @@ server.listen(port, async () => {
             clearInterval(interval);
             console.log('Timeout finished');
             socket.emit('inventoryResults', { items: Array.from(SET) });
-          }, 5000);
+          }, 10000);
         });
 
 				socket.on('delete', (data) => {
@@ -144,7 +163,7 @@ server.listen(port, async () => {
 					console.log('Client disconnected');
 					reader.removeAllListeners();
           socket.removeAllListeners();
-          clearInterval(interval);
+          if (interval) clearInterval(interval);
           SET.clear();
 				});
 			});
