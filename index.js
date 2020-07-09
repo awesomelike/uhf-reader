@@ -5,6 +5,7 @@ const notifiy = require('./util/notify');
 const { sendLog } = require('./util/api');
 const sanitizeSet = require('./util/sanitize');
 require('dotenv').config();
+const { ACTIVE_MODE } = require('./constants/commands');
 
 const SET = new Set();
 
@@ -35,8 +36,8 @@ app.listen(port, () => {
   client.on('connect', (data) => {
     console.log('UHF Reader connected');
     
-    let bytes = Buffer.from([0x04, 0xff, 0x21, 0x19, 0x95], "ascii");
-    client.write(bytes);
+    // let bytes = Buffer.from([0x04, 0xff, 0x21, 0x19, 0x95], "ascii");
+    client.write(ACTIVE_MODE);
 
     // We periodically (each 30s) clear the set
     sanitizeSet(SET);
