@@ -52,11 +52,6 @@ server.listen(port, async () => {
         
         const SET = new Set();
 
-        // // Send inventory command
-        // const interval = setInterval(() => {
-				// 	console.log('Sending INVENTORY...');
-        //   reader.write(INVENTORY);
-        // }, 100);
 				let interval;
 				socket.on('bookId', (bookId) => {
 					console.log(`Client sent bookId=${bookId}`);
@@ -148,8 +143,8 @@ server.listen(port, async () => {
             }
           });
           setTimeout(() => {
-            clearInterval(interval);
-            console.log('Timeout finished');
+						clearInterval(interval);
+            console.log('Timeout finished', interval);
             socket.emit('inventoryResults', { items: Array.from(SET) });
           }, 10000);
         });
