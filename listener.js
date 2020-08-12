@@ -144,7 +144,6 @@ server.listen(port, async () => {
           });
           setTimeout(() => {
 						clearInterval(interval);
-            console.log('Timeout finished', interval);
             socket.emit('inventoryResults', { items: Array.from(SET) });
           }, 10000);
         });
@@ -165,11 +164,16 @@ server.listen(port, async () => {
 
 			reader.on('error', (error) => {
 				console.log('UHF Reader error!', error);
+				process.exit(-1);
 			});
-
+			reader.on('timeout', () => {
+				console.log('Reader connection timeout!');
+				process.exit(-1);
+			})
 			reader.on('close', (error) => {
 				console.log('Client destroyed:', reader.destroyed);
 				console.log('UHF Reader connection closed!', error);
+				process.exit(-1);
 			});
 		});
 	} catch (error) {
