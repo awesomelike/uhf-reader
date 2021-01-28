@@ -1,3 +1,4 @@
+// eslint-disable-next-line consistent-return
 const getTags = (response) => {
   const buf = Buffer.from(response, 'ascii');
   const string = buf.toString('hex', 0, buf.length);
