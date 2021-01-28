@@ -14,6 +14,17 @@ const io = socketIO(server);
 
 require('dotenv').config();
 
+const handler = (SET, callback) => (data) => {
+  const tags = getTags(data);
+  if (Array.isArray(tags)) {
+    tags.forEach((tag) => {
+      if (!SET.has(tag)) {
+        callback(tag);
+      }
+    });
+  }
+};
+
 server.listen(port, async () => {
   try {
     console.log(`Listener service started on ${port}`);
@@ -26,7 +37,7 @@ server.listen(port, async () => {
       .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
       .on('error', (error) => console.log(error));
 
-    reader.on('connect', (data) => {
+    reader.on('connect', () => {
       console.log('UHF Reader connected');
 
       // Set to Answer mode
@@ -51,20 +62,11 @@ server.listen(port, async () => {
             message: `Received book id: ${bookId}`,
           });
 
-          reader
-            .on('data', (data) => {
-              const tags = getTags(data);
-              if (Array.isArray(tags)) {
-                tags.forEach((tag) => {
-                  if (!SET.has(tag)) {
-                    SET.add(tag);
-                    socket.emit('bookItem', { bookId, rfidTag: tag });
-                    console.log('hash: ', tag);
-                  }
-                });
-              }
-            })
-            .on('error', (err) => console.log(err));
+          reader.on('data', handler(SET, (tag) => {
+            SET.add(tag);
+            socket.emit('bookItem', { bookId, rfidTag: tag });
+            console.log('hash: ', tag);
+          }));
         });
         socket.on('rfidTag', () => {
           const message = 'RFID Lookup request received';
@@ -80,22 +82,11 @@ server.listen(port, async () => {
             message,
           });
 
-          reader.on('data', async (data) => {
-            const tags = getTags(data);
-            if (Array.isArray(tags)) {
-              tags.forEach(async (tag) => {
-                if (!SET.has(tag)) {
-                  SET.add(tag);
-                  console.log('hash: ', tag);
-                  try {
-                    socket.emit('bookItemDetails', tag);
-                  } catch (error) {
-                    console.log(error);
-                  }
-                }
-              });
-            }
-          });
+          reader.on('data', handler(SET, (tag) => {
+            SET.add(tag);
+            console.log('hash: ', tag);
+            socket.emit('bookItemDetails', tag);
+          }));
         });
 
         socket.on('inventory', () => {
@@ -113,17 +104,10 @@ server.listen(port, async () => {
             message,
           });
 
-          reader.on('data', (data) => {
-            const tags = getTags(data);
-            if (Array.isArray(tags)) {
-              tags.forEach((tag) => {
-                if (!SET.has(tag)) {
-                  SET.add(tag);
-                  console.log('hash: ', tag);
-                }
-              });
-            }
-          });
+          reader.on('data', handler(SET, (tag) => {
+            SET.add(tag);
+            console.log('hash: ', tag);
+          }));
           setTimeout(() => {
             clearInterval(interval);
             socket.emit('inventoryResults', { items: Array.from(SET) });
