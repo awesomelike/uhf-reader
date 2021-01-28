@@ -146,13 +146,6 @@ server.listen(port, async () => {
 
       reader.on('error', (error) => {
         console.log('UHF Reader error!', error);
-        // reader = new net.Socket();
-
-        // reader.setEncoding('ascii');
-
-        // reader
-        //   .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
-        //   .on('error', (error) => console.log(error));
         process.exit(-1);
       });
       reader.on('timeout', () => {
@@ -162,14 +155,6 @@ server.listen(port, async () => {
       reader.on('close', (error) => {
         console.log('Client destroyed:', reader.destroyed);
         console.log('UHF Reader connection closed!', error);
-        // console.log('Trying new connection...');
-        // reader = new net.Socket();
-
-        // reader.setEncoding('ascii');
-
-        // reader
-        //   .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
-        //   .on('error', (error) => console.log(error));
         process.exit(-1);
       });
     });
