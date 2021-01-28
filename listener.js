@@ -3,6 +3,7 @@ const app = require('express')();
 const http = require('http');
 const socketIO = require('socket.io');
 const notifier = require('node-notifier');
+const ms = require('ms');
 const { ANSWER_MODE, INVENTORY } = require('./constants/commands');
 const getTags = require('./util/getTags');
 
@@ -17,10 +18,10 @@ server.listen(port, async () => {
   try {
     console.log(`Listener service started on ${port}`);
 
-    let reader = new net.Socket();
+    const reader = new net.Socket();
 
     reader.setEncoding('ascii');
-
+    reader.setKeepAlive(true, ms('1m'));
     reader
       .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
       .on('error', (error) => console.log(error));
@@ -145,14 +146,14 @@ server.listen(port, async () => {
 
       reader.on('error', (error) => {
         console.log('UHF Reader error!', error);
-        reader = new net.Socket();
+        // reader = new net.Socket();
 
-        reader.setEncoding('ascii');
+        // reader.setEncoding('ascii');
 
-        reader
-          .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
-          .on('error', (error) => console.log(error));
-        // process.exit(-1);
+        // reader
+        //   .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
+        //   .on('error', (error) => console.log(error));
+        process.exit(-1);
       });
       reader.on('timeout', () => {
         console.log('Reader connection timeout!');
@@ -161,15 +162,15 @@ server.listen(port, async () => {
       reader.on('close', (error) => {
         console.log('Client destroyed:', reader.destroyed);
         console.log('UHF Reader connection closed!', error);
-        console.log('Trying new connection...');
-        reader = new net.Socket();
+        // console.log('Trying new connection...');
+        // reader = new net.Socket();
 
-        reader.setEncoding('ascii');
+        // reader.setEncoding('ascii');
 
-        reader
-          .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
-          .on('error', (error) => console.log(error));
-        // process.exit(-1);
+        // reader
+        //   .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
+        //   .on('error', (error) => console.log(error));
+        process.exit(-1);
       });
     });
   } catch (error) {
