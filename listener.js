@@ -5,7 +5,7 @@ const socketIO = require('socket.io');
 const notifier = require('node-notifier');
 const ms = require('ms');
 const { ANSWER_MODE, INVENTORY } = require('./constants/commands');
-const getTags = require('./util/getTags');
+const handler = require('./util/tags');
 
 const port = process.env.PORT || 3001;
 
@@ -14,17 +14,6 @@ const io = socketIO(server);
 
 require('dotenv').config();
 
-const handler = (SET, callback) => (data) => {
-  const tags = getTags(data);
-  if (Array.isArray(tags)) {
-    tags.forEach((tag) => {
-      if (!SET.has(tag)) {
-        callback(tag);
-      }
-    });
-  }
-};
-
 server.listen(port, async () => {
   try {
     console.log(`Listener service started on ${port}`);
@@ -32,9 +21,9 @@ server.listen(port, async () => {
     const reader = new net.Socket();
 
     reader.setEncoding('ascii');
-    reader.setKeepAlive(true, ms('1m'));
-    reader
-      .connect(process.env.READER_PORT, process.env.READER_IP, () => {})
+    reader.setKeepAlive(true, ms('1m')); // important!
+
+    reader.connect(process.env.READER_PORT, process.env.READER_IP, () => {})
       .on('error', (error) => console.log(error));
 
     reader.on('connect', () => {

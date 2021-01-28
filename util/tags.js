@@ -14,4 +14,16 @@ const getTags = (response) => {
   }
 };
 
-module.exports = getTags;
+const handler = (SET, callback) => (data) => {
+  const tags = getTags(data);
+  if (Array.isArray(tags)) {
+    tags.forEach((tag) => {
+      if (!SET.has(tag)) {
+        callback(tag);
+      }
+    });
+  }
+};
+
+module.exports = handler;
+module.exports.getTags = getTags;
